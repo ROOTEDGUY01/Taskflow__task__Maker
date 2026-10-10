@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f8fc"><meta name="description" content="TaskFlow task management app — organize tasks, priorities and due dates.">
+<title>TaskFlow — Task Manager</title><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="#" aria-label="TaskFlow home"><span class="brand-mark">✓</span><span>taskflow<span class="brand-dot">.</span></span></a>
+    <div class="workspace-label">WORKSPACE</div>
+    <nav class="nav" aria-label="Task filters">
+      <button class="nav-item active" data-filter="all"><span class="nav-icon">▦</span> All tasks <span class="nav-count" id="count-all">0</span></button>
+      <button class="nav-item" data-filter="todo"><span class="nav-icon">◷</span> To do <span class="nav-count" id="count-todo">0</span></button>
+      <button class="nav-item" data-filter="inprogress"><span class="nav-icon">↻</span> In progress <span class="nav-count" id="count-inprogress">0</span></button>
+      <button class="nav-item" data-filter="done"><span class="nav-icon">✓</span> Completed <span class="nav-count" id="count-done">0</span></button>
+    </nav>
+    <div class="sidebar-bottom"><div class="help-card"><div class="help-icon">✦</div><strong>Make progress, daily.</strong><p>Small steps add up. Keep your next task clear.</p></div><div class="profile"><div class="avatar">Y</div><div><strong>Your workspace</strong><small>Personal plan</small></div><span class="profile-menu">•••</span></div></div>
+  </aside>
+  <main class="main-content">
+    <header class="topbar"><div class="breadcrumbs">Workspace <span>/</span> <strong id="breadcrumb-title">All tasks</strong></div><div class="top-actions"><span class="today-label" id="today-label"></span><button class="icon-button" id="theme-toggle" title="Toggle color theme" aria-label="Toggle color theme">☼</button><div class="avatar small-avatar">Y</div></div></header>
+    <section class="page-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span> YOUR PERSONAL WORKSPACE</div><h1 id="page-title">All tasks <span class="heading-count" id="heading-count">0</span></h1><p class="subtitle">Plan your work. Make meaningful progress.</p></div><button class="primary-button" id="add-task-btn"><span>＋</span> New task</button></section>
+    <section class="stats-grid" aria-label="Task summary">
+      <article class="stat-card"><div class="stat-top"><span>Total tasks</span><span class="stat-icon lavender">▦</span></div><div class="stat-value" id="stat-total">0</div><div class="stat-foot">Tasks in your workspace</div></article>
+      <article class="stat-card"><div class="stat-top"><span>In progress</span><span class="stat-icon blue">↻</span></div><div class="stat-value" id="stat-progress">0</div><div class="stat-foot">Work currently underway</div></article>
+      <article class="stat-card"><div class="stat-top"><span>Completed</span><span class="stat-icon green">✓</span></div><div class="stat-value" id="stat-done">0</div><div class="stat-foot" id="completion-foot">Keep the momentum going</div></article>
+      <article class="stat-card"><div class="stat-top"><span>Overdue</span><span class="stat-icon orange">!</span></div><div class="stat-value" id="stat-overdue">0</div><div class="stat-foot">Past due and not completed</div></article>
+    </section>
+    <section class="tasks-panel">
+      <div class="panel-header"><div><h2>Task overview</h2><p>Everything you need to focus on, in one place.</p></div><button class="text-button" id="clear-completed">Clear completed</button></div>
+      <div class="toolbar"><label class="search-box"><span>⌕</span><input type="search" id="search-input" placeholder="Search tasks..." aria-label="Search tasks"></label><div class="toolbar-filters"><label class="select-wrap"><span>Priority</span><select id="priority-filter" aria-label="Filter by priority"><option value="all">All priorities</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label><label class="select-wrap"><span>Sort</span><select id="sort-select" aria-label="Sort tasks"><option value="due">Due date</option><option value="newest">Recently added</option><option value="priority">Priority</option><option value="title">Title A–Z</option></select></label></div></div>
+      <div class="task-table-head"><span>TASK</span><span>PRIORITY</span><span>DUE DATE</span><span>STATUS</span><span></span></div>
+      <div id="task-list" class="task-list" aria-live="polite"></div>
+      <div class="panel-footer"><span id="results-label">Showing 0 tasks</span><span class="footer-tip"><span class="tip-dot"></span> Changes save automatically</span></div>
+    </section>
+    <footer class="app-footer">Built for focus <span>•</span> TaskFlow</footer>
+  </main>
+</div>
+<div class="modal-backdrop" id="modal-backdrop" hidden>
+  <section class="task-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-heading"><div><div class="modal-kicker">TASK DETAILS</div><h2 id="modal-title">Create a task</h2></div><button class="icon-button close-modal" id="close-modal" aria-label="Close dialog">×</button></div>
+    <form id="task-form">
+      <input type="hidden" id="task-id">
+      <label class="field-label" for="task-title">Task title <span>*</span></label><input class="form-input" id="task-title" name="title" maxlength="100" placeholder="e.g. Prepare project presentation" required>
+      <label class="field-label" for="task-description">Description <small>Optional</small></label><textarea class="form-input" id="task-description" name="description" rows="3" maxlength="500" placeholder="Add a few details to help you get started..."></textarea>
+      <div class="form-row"><div><label class="field-label" for="task-priority">Priority</label><select class="form-input" id="task-priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div><div><label class="field-label" for="task-status">Status</label><select class="form-input" id="task-status"><option value="todo">To do</option><option value="inprogress">In progress</option><option value="done">Completed</option></select></div></div>
+      <label class="field-label" for="task-due">Due date <small>Optional</small></label><input class="form-input" id="task-due" type="date">
+      <div class="form-error" id="form-error" role="alert"></div><div class="modal-actions"><button type="button" class="secondary-button" id="cancel-modal">Cancel</button><button type="submit" class="primary-button" id="save-task-btn">Create task</button></div>
+    </form>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body></html>
