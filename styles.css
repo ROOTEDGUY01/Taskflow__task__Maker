@@ -1,222 +1,410 @@
-<!doctype html>
-<html lang="en">
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f7f8fc">
-  <meta name="description" content="TaskFlow task management app — organize tasks, priorities and due dates.">
-  <title>TaskFlow — Task Manager</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
+:root {
+    --bg: #f7f8fc;
+    --surface: #fff;
+    --surface-2: #fafaff;
+    --text: #202139;
+    --muted: #85869e;
+    --line: #ececf4;
+    --purple: #6c5ce7;
+    --purple-dark: #5747d8;
+    --purple-soft: #f0edff;
+    --shadow: 0 8px 28px rgba(39,37,87,.045);
+    --green: #239b72;
+    --red: #d84f5f;
+    --orange: #c97c27;
+    --blue: #4388dd;
+}
 
-<body>
-  <div class="app-shell">
+/* ---------- Reset & Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <a class="brand" href="#" aria-label="TaskFlow home">
-        <span class="brand-mark">✓</span>
-        <span>taskflow<span class="brand-dot">.</span></span>
-      </a>
+html {
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
 
-      <div class="workspace-label">WORKSPACE</div>
+body {
+    margin: 0;
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
 
-      <nav class="nav" aria-label="Task filters">
-        <button class="nav-item active" data-filter="all">
-          <span class="nav-icon">▦</span> All tasks <span class="nav-count" id="count-all">0</span>
-        </button>
-        <button class="nav-item" data-filter="todo">
-          <span class="nav-icon">◷</span> To do <span class="nav-count" id="count-todo">0</span>
-        </button>
-        <button class="nav-item" data-filter="inprogress">
-          <span class="nav-icon">↻</span> In progress <span class="nav-count" id="count-inprogress">0</span>
-        </button>
-        <button class="nav-item" data-filter="done">
-          <span class="nav-icon">✓</span> Completed <span class="nav-count" id="count-done">0</span>
-        </button>
-      </nav>
+button, input, textarea, select {
+    font: inherit;
+    font-size: 16px;
+    max-width: 100%;
+}
 
-      <div class="sidebar-bottom">
-        <div class="help-card">
-          <div class="help-icon">✦</div>
-          <strong>Make progress, daily.</strong>
-          <p>Small steps add up. Keep your next task clear.</p>
-        </div>
+button, a, select, input[type="checkbox"] {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
 
-        <div class="profile">
-          <div class="avatar">Y</div>
-          <div>
-            <strong>Your workspace</strong>
-            <small>Personal plan</small>
-          </div>
-          <span class="profile-menu">•••</span>
-        </div>
-      </div>
-    </aside>
+img, svg, video, canvas { max-width: 100%; height: auto; }
+h1, h2, p { margin-top: 0; }
 
-    <!-- Main content -->
-    <main class="main-content">
+.task-title, .task-description, .subtitle, .panel-header p {
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
 
-      <header class="topbar">
-        <div class="breadcrumbs">
-          Workspace <span>/</span> <strong id="breadcrumb-title">All tasks</strong>
-        </div>
-        <div class="top-actions">
-          <span class="today-label" id="today-label"></span>
-          <button class="icon-button" id="theme-toggle" title="Toggle color theme" aria-label="Toggle color theme">☼</button>
-          <div class="avatar small-avatar">Y</div>
-        </div>
-      </header>
+/* ---------- Focus States ---------- */
+.task-check:focus-visible, .more-btn:focus-visible, .primary-button:focus-visible, 
+.icon-button:focus-visible, .nav-item:focus-visible, .text-button:focus-visible, 
+.secondary-button:focus-visible {
+    outline: 3px solid #8d82f0;
+    outline-offset: 2px;
+}
 
-      <section class="page-heading">
-        <div>
-          <div class="eyebrow"><span class="eyebrow-dot"></span> YOUR PERSONAL WORKSPACE</div>
-          <h1 id="page-title">All tasks <span class="heading-count" id="heading-count">0</span></h1>
-          <p class="subtitle">Plan your work. Make meaningful progress.</p>
-        </div>
-        <button class="primary-button" id="add-task-btn"><span>＋</span> New task</button>
-      </section>
+/* ---------- Layout ---------- */
+.app-shell { min-height: 100vh; display: flex; min-width: 0; max-width: 100%; }
 
-      <section class="stats-grid" aria-label="Task summary">
-        <article class="stat-card">
-          <div class="stat-top"><span>Total tasks</span><span class="stat-icon lavender">▦</span></div>
-          <div class="stat-value" id="stat-total">0</div>
-          <div class="stat-foot">Tasks in your workspace</div>
-        </article>
+.sidebar {
+    width: 248px;
+    background: var(--surface);
+    border-right: 1px solid var(--line);
+    padding: 27px 17px 18px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
 
-        <article class="stat-card">
-          <div class="stat-top"><span>In progress</span><span class="stat-icon blue">↻</span></div>
-          <div class="stat-value" id="stat-progress">0</div>
-          <div class="stat-foot">Work currently underway</div>
-        </article>
+.main-content { max-width: 1600px; min-width: 0; flex: 1; padding: 0 43px 20px; }
 
-        <article class="stat-card">
-          <div class="stat-top"><span>Completed</span><span class="stat-icon green">✓</span></div>
-          <div class="stat-value" id="stat-done">0</div>
-          <div class="stat-foot" id="completion-foot">Keep the momentum going</div>
-        </article>
+.topbar {
+    height: 76px;
+    border-bottom: 1px solid #ebecf3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
-        <article class="stat-card">
-          <div class="stat-top"><span>Overdue</span><span class="stat-icon orange">!</span></div>
-          <div class="stat-value" id="stat-overdue">0</div>
-          <div class="stat-foot">Past due and not completed</div>
-        </article>
-      </section>
+/* ---------- Typography & Branding ---------- */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 8px 49px;
+    color: var(--text);
+    text-decoration: none;
+    font: 800 23px Manrope, sans-serif;
+    letter-spacing: -1px;
+}
+.brand-mark { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 10px; background: var(--purple); color: #fff; font-size: 21px; box-shadow: 0 5px 12px #6c5ce738; }
+.brand-dot { color: var(--purple); }
 
-      <section class="tasks-panel">
-        <div class="panel-header">
-          <div>
-            <h2>Task overview</h2>
-            <p>Everything you need to focus on, in one place.</p>
-          </div>
-          <button class="text-button" id="clear-completed">Clear completed</button>
-        </div>
+.workspace-label { font-size: 10px; font-weight: 700; letter-spacing: 1.45px; color: #a0a1b5; padding: 0 12px; margin-bottom: 13px; }
 
-        <div class="toolbar">
-          <label class="search-box">
-            <span>⌕</span>
-            <input type="search" id="search-input" placeholder="Search tasks..." aria-label="Search tasks">
-          </label>
+/* ---------- Navigation ---------- */
+.nav { display: grid; gap: 6px; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border: 0; background: transparent; border-radius: 10px; color: #777991; text-align: left; font-weight: 600; transition: .18s; }
+.nav-item:hover { background: #f8f7ff; color: var(--purple); }
+.nav-item.active { background: var(--purple-soft); color: var(--purple); }
+.nav-icon { width: 20px; text-align: center; font-size: 18px; }
+.nav-count { margin-left: auto; color: #a4a4b8; font-size: 12px; }
+.nav-item.active .nav-count { color: var(--purple); }
 
-          <div class="toolbar-filters">
-            <label class="select-wrap">
-              <span>Priority</span>
-              <select id="priority-filter" aria-label="Filter by priority">
-                <option value="all">All priorities</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
-            </label>
+.sidebar-bottom { margin-top: auto; }
 
-            <label class="select-wrap">
-              <span>Sort</span>
-              <select id="sort-select" aria-label="Sort tasks">
-                <option value="due">Due date</option>
-                <option value="newest">Recently added</option>
-                <option value="priority">Priority</option>
-                <option value="title">Title A–Z</option>
-              </select>
-            </label>
-          </div>
-        </div>
+/* ---------- Help Card & Profile ---------- */
+.help-card { padding: 17px 15px; background: linear-gradient(145deg, #f2efff, #faf8ff); border: 1px solid #ebe6ff; border-radius: 13px; margin-bottom: 22px; }
+.help-icon { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 9px; background: #fff; color: var(--purple); font-size: 17px; margin-bottom: 14px; }
+.help-card strong { font-size: 13px; }
+.help-card p { font-size: 11px; line-height: 1.65; color: #8783a6; margin: 7px 0 0; }
 
-        <div class="task-table-head">
-          <span>TASK</span>
-          <span>PRIORITY</span>
-          <span>DUE DATE</span>
-          <span>STATUS</span>
-          <span></span>
-        </div>
+.profile { border-top: 1px solid var(--line); padding: 18px 4px 0; display: flex; align-items: center; gap: 10px; }
+.avatar { width: 34px; height: 34px; border-radius: 50%; background: #e5defe; color: #5947be; display: grid; place-items: center; font-weight: 700; }
+.profile strong { font-size: 12px; display: block; }
+.profile small { font-size: 10px; color: var(--muted); display: block; margin-top: 3px; }
+.profile-menu { margin-left: auto; color: #a0a1b5; letter-spacing: 1px; }
 
-        <div id="task-list" class="task-list" aria-live="polite"></div>
+/* ---------- Header & Topbar Elements ---------- */
+.breadcrumbs { font-size: 12px; color: #9a9bb0; }
+.breadcrumbs span { padding: 0 10px; color: #c5c5d3; }
+.breadcrumbs strong { color: #4d4e68; font-weight: 600; }
+.top-actions { display: flex; align-items: center; gap: 19px; }
+.today-label { font-size: 11px; color: #8d8ea4; }
+.icon-button { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: #74758c; font-size: 18px; display: grid; place-items: center; }
+.small-avatar { width: 31px; height: 31px; font-size: 12px; }
 
-        <div class="panel-footer">
-          <span id="results-label">Showing 0 tasks</span>
-          <span class="footer-tip"><span class="tip-dot"></span> Changes save automatically</span>
-        </div>
-      </section>
+.page-heading { display: flex; align-items: center; justify-content: space-between; padding: 34px 0 25px; min-width: 0; max-width: 100%; }
+.eyebrow { font-size: 10px; letter-spacing: 1.5px; font-weight: 700; color: #999ab0; display: flex; align-items: center; gap: 8px; }
+.eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--purple); }
+h1 { font: 800 29px Manrope, sans-serif; letter-spacing: -1.2px; margin: 10px 0 7px; }
+.heading-count { font: 600 12px 'DM Sans'; color: #9696ad; vertical-align: middle; margin-left: 5px; letter-spacing: 0; }
+.subtitle { margin: 0; color: #9293a9; font-size: 12px; }
 
-      <footer class="app-footer">Built for focus <span>•</span> TaskFlow</footer>
-    </main>
-  </div>
+.primary-button { border: 0; border-radius: 9px; background: var(--purple); color: #fff; padding: 12px 17px; font-weight: 700; font-size: 12px; box-shadow: 0 5px 12px #6c5ce725; transition: .18s; }
+.primary-button:hover { background: var(--purple-dark); transform: translateY(-1px); }
+.primary-button span { font-size: 16px; margin-right: 6px; vertical-align: -1px; }
 
-  <!-- Task modal -->
-  <div class="modal-backdrop" id="modal-backdrop" hidden>
-    <section class="task-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <div class="modal-heading">
-        <div>
-          <div class="modal-kicker">TASK DETAILS</div>
-          <h2 id="modal-title">Create a task</h2>
-        </div>
-        <button class="icon-button close-modal" id="close-modal" aria-label="Close dialog">×</button>
-      </div>
+/* ---------- Stats Grid ---------- */
+.stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 25px; }
+.stat-card { background: var(--surface); border: 1px solid var(--line); border-radius: 13px; padding: 17px 19px 16px; box-shadow: var(--shadow); min-width: 0; }
+.stat-top { display: flex; align-items: center; justify-content: space-between; color: #7f8098; font-size: 11px; font-weight: 600; }
+.stat-icon { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font-size: 16px; }
+.lavender { color: #7a68e8; background: #f0edff; }
+.blue { color: #4388dd; background: #eaf3ff; }
+.green { color: #2c9c76; background: #e6f8f1; }
+.orange { color: #c98530; background: #fff3e4; }
+.stat-value { font: 800 26px Manrope, sans-serif; letter-spacing: -.7px; margin: 10px 0 5px; }
+.stat-foot { font-size: 10px; color: #a0a1b5; }
 
-      <form id="task-form">
-        <input type="hidden" id="task-id">
+/* ---------- Tasks Panel ---------- */
+.tasks-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; min-width: 0; max-width: 100%; }
+.panel-header { padding: 22px 23px 18px; display: flex; align-items: center; justify-content: space-between; min-width: 0; max-width: 100%; }
+.panel-header h2 { font: 700 16px Manrope, sans-serif; letter-spacing: -.3px; margin: 0 0 6px; }
+.panel-header p { margin: 0; color: #999ab0; font-size: 11px; }
+.text-button { border: 0; background: transparent; color: var(--purple); font-size: 11px; font-weight: 700; padding: 8px; }
+.text-button:hover { text-decoration: underline; }
 
-        <label class="field-label" for="task-title">Task title <span>*</span></label>
-        <input class="form-input" id="task-title" name="title" maxlength="100" placeholder="e.g. Prepare project presentation" required>
+.toolbar { display: flex; justify-content: space-between; align-items: center; padding: 0 23px 17px; gap: 15px; min-width: 0; max-width: 100%; }
+.search-box { height: 36px; max-width: 320px; width: 100%; display: flex; align-items: center; gap: 8px; border: 1px solid #e9e9f2; border-radius: 8px; padding: 0 11px; color: #a0a1b5; }
+.search-box span { font-size: 23px; line-height: 1; transform: rotate(-20deg); }
+.search-box input { border: 0; outline: 0; background: transparent; width: 100%; min-width: 0; color: var(--text); font-size: 11px; }
+.search-box input::placeholder { color: #b0b1c2; }
 
-        <label class="field-label" for="task-description">Description <small>Optional</small></label>
-        <textarea class="form-input" id="task-description" name="description" rows="3" maxlength="500" placeholder="Add a few details to help you get started..."></textarea>
+.toolbar-filters { display: flex; gap: 10px; }
+.select-wrap { height: 36px; border: 1px solid #e9e9f2; border-radius: 8px; display: flex; align-items: center; padding: 0 9px; gap: 7px; color: #a0a1b5; font-size: 10px; }
+.select-wrap select { border: 0; background: transparent; color: #686982; outline: 0; font-size: 10px; max-width: 100px; }
 
-        <div class="form-row">
-          <div>
-            <label class="field-label" for="task-priority">Priority</label>
-            <select class="form-input" id="task-priority">
-              <option value="low">Low</option>
-              <option value="medium" selected>Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
-          <div>
-            <label class="field-label" for="task-status">Status</label>
-            <select class="form-input" id="task-status">
-              <option value="todo">To do</option>
-              <option value="inprogress">In progress</option>
-              <option value="done">Completed</option>
-            </select>
-          </div>
-        </div>
+/* ---------- Task List ---------- */
+.task-table-head, .task-row { display: grid; grid-template-columns: minmax(190px, 1fr) 110px 120px 120px 30px; gap: 12px; align-items: center; padding: 0 23px; }
+.task-table-head { height: 37px; background: var(--surface-2); border-top: 1px solid #f1f1f7; border-bottom: 1px solid #f1f1f7; color: #a2a3b7; font-size: 9px; font-weight: 700; letter-spacing: .8px; }
+.task-row { min-height: 76px; border-bottom: 1px solid #f1f1f7; transition: background .15s; }
+.task-row:hover { background: #fdfcff; }
 
-        <label class="field-label" for="task-due">Due date <small>Optional</small></label>
-        <input class="form-input" id="task-due" type="date">
+.task-info { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+.task-copy { min-width: 0; }
+.task-title { font-size: 12px; font-weight: 700; line-height: 1.5; }
+.task-title.completed { text-decoration: line-through; color: #a3a4b5; }
+.task-description { font-size: 10px; line-height: 1.45; color: #a0a1b5; margin-top: 4px; }
 
-        <div class="form-error" id="form-error" role="alert"></div>
+/* Re-engineered Custom Checkbox */
+.task-check { position: relative; width: 18px; height: 18px; min-width: 18px; min-height: 18px; border: 1.5px solid #c9c9dc; border-radius: 5px; background: var(--surface); color: white; flex-shrink: 0; display: grid; place-items: center; padding: 0; margin-top: 2px; font-size: 11px; line-height: 1; transition: all .16s ease; }
+.task-check:hover { border-color: var(--purple); box-shadow: 0 0 0 3px #6c5ce712; }
+.task-check:active { transform: scale(.94); }
+.task-check.checked { background: var(--purple); border-color: var(--purple); box-shadow: inset 0 0 0 1px #ffffff20; }
 
-        <div class="modal-actions">
-          <button type="button" class="secondary-button" id="cancel-modal">Cancel</button>
-          <button type="submit" class="primary-button" id="save-task-btn">Create task</button>
-        </div>
-      </form>
-    </section>
-  </div>
+.priority-pill, .status-pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 6px; padding: 6px 8px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.priority-pill:before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.priority-high { background: #fff0f0; color: #d65b65; }
+.priority-medium { background: #fff5e8; color: #c88b3a; }
+.priority-low { background: #eaf8f1; color: #389b78; }
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+.due-date { font-size: 10px; color: #81829b; white-space: nowrap; }
+.due-date.overdue { color: #d65b65; font-weight: 700; }
+.due-date.today { color: #c88b3a; font-weight: 700; }
 
-  <script src="app.js"></script>
-</body>
+.status-pill { border: 0; background: #f1efff; color: #7564db; }
+.status-todo { background: #f0f1f7; color: #7f8097; }
+.status-inprogress { background: #eaf3ff; color: #4388dd; }
+.status-done { background: #e6f8f1; color: #2c9c76; }
 
-</html>
+.row-actions { position: relative; }
+.more-btn { border: 0; background: transparent; color: #a5a5b8; font-size: 19px; letter-spacing: 1px; border-radius: 6px; padding: 4px 5px; }
+.more-btn:hover { background: #f0edff; color: var(--purple); }
+
+.action-menu { position: absolute; right: 0; top: 28px; z-index: 5; min-width: 125px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 8px 25px #20213920; border-radius: 9px; padding: 5px; }
+.action-menu button { display: block; width: 100%; border: 0; background: transparent; text-align: left; padding: 9px 10px; border-radius: 6px; font-size: 11px; color: var(--text); }
+.action-menu button:hover { background: var(--purple-soft); color: var(--purple); }
+.action-menu .delete-action { color: var(--red); }
+
+/* ---------- Empty State & Footer ---------- */
+.empty-state { text-align: center; padding: 47px 20px; }
+.empty-illustration { width: 52px; height: 52px; border-radius: 16px; background: #f0edff; color: var(--purple); display: grid; place-items: center; font-size: 24px; margin: 0 auto 14px; }
+.empty-state h3 { font: 700 14px Manrope; margin: 0 0 7px; }
+.empty-state p { color: #999ab0; font-size: 11px; margin: 0 0 17px; }
+
+.panel-footer { height: 48px; padding: 0 23px; display: flex; align-items: center; justify-content: space-between; color: #a1a2b5; font-size: 10px; }
+.footer-tip { display: flex; align-items: center; gap: 7px; }
+.tip-dot { width: 6px; height: 6px; background: #43b58b; border-radius: 50%; }
+
+.app-footer { text-align: center; padding: 22px 0 0; font-size: 10px; color: #adaec0; }
+.app-footer span { padding: 0 5px; color: #d0c9f9; }
+
+/* ---------- Modal & Toast ---------- */
+.modal-backdrop { position: fixed; inset: 0; background: #19182c75; display: grid; place-items: center; padding: 18px; z-index: 20; backdrop-filter: blur(3px); }
+.modal-backdrop[hidden] { display: none; }
+
+.task-modal { background: var(--surface); width: min(100%, 490px); border-radius: 16px; padding: 25px; box-shadow: 0 25px 90px #17162d40; max-height: 95vh; overflow: auto; }
+.modal-heading { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; }
+.modal-kicker { font-size: 9px; letter-spacing: 1.4px; color: #9d9eb2; font-weight: 700; margin-bottom: 7px; }
+.modal-heading h2 { font: 800 21px Manrope; letter-spacing: -.6px; margin: 0; }
+.close-modal { font-size: 23px; }
+
+.field-label { display: block; font-size: 11px; font-weight: 700; color: #555670; margin: 15px 0 7px; }
+.field-label span { color: var(--red); }
+.field-label small { float: right; font-size: 10px; color: #a1a2b5; font-weight: 400; }
+
+.form-input { width: 100%; border: 1px solid #e5e5ef; border-radius: 8px; padding: 11px 12px; background: var(--surface); color: var(--text); outline: 0; font-size: 12px; transition: border .15s; }
+.form-input:focus { border-color: #9c91f0; box-shadow: 0 0 0 3px #6c5ce715; }
+.form-input::placeholder { color: #b4b5c4; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.form-error { min-height: 16px; color: var(--red); font-size: 11px; margin-top: 8px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 10px; }
+.secondary-button { border: 1px solid #e7e7f0; background: var(--surface); color: #777891; padding: 11px 16px; border-radius: 8px; font-size: 11px; font-weight: 700; }
+.secondary-button:hover { background: #f8f8fc; }
+
+.toast { position: fixed; bottom: 22px; right: 24px; z-index: 30; padding: 12px 17px; background: #26253f; color: white; border-radius: 9px; font-size: 12px; box-shadow: 0 10px 30px #15142c35; opacity: 0; transform: translateY(8px); pointer-events: none; transition: .22s; }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* ---------- Dark Theme ---------- */
+body.dark {
+    --bg: #171725;
+    --surface: #222235;
+    --surface-2: #29293e;
+    --text: #f0efff;
+    --muted: #a4a4bd;
+    --line: #34344c;
+    --shadow: 0 8px 28px rgba(0,0,0,.12);
+}
+body.dark .sidebar, body.dark .topbar, body.dark .task-table-head, body.dark .task-row, 
+body.dark .search-box, body.dark .select-wrap, body.dark .form-input, 
+body.dark .secondary-button, body.dark .icon-button, body.dark .action-menu { border-color: var(--line); }
+body.dark .nav-item:hover, body.dark .task-row:hover { background: #2a2940; }
+body.dark .help-card { background: #2c2946; border-color: #3b365e; }
+body.dark .help-card p { color: #b0abc9; }
+body.dark .form-input { background: #26263a; }
+body.dark .breadcrumbs strong { color: #d4d3e9; }
+body.dark .field-label { color: #d1d0e5; }
+body.dark .action-menu button:hover { background: #35314f; }
+
+/* ---------- Mobile Menu Defaults ---------- */
+.mobile-menu-toggle, .mobile-menu-backdrop { display: none; }
+
+/* ---------- Responsive Breakpoints (Cleaned & Merged) ---------- */
+@media(max-width: 1100px) {
+    .main-content { padding: 0 25px 20px; }
+    .stats-grid { gap: 10px; }
+    .stat-card { padding: 15px; }
+    .task-table-head, .task-row { grid-template-columns: minmax(150px, 1fr) 95px 100px 105px 25px; gap: 8px; padding: 0 16px; }
+    .toolbar, .panel-header { padding-left: 16px; padding-right: 16px; }
+}
+
+@media(max-width: 800px) {
+    .app-shell { align-items: stretch; }
+    .topbar { justify-content: flex-start; gap: 10px; }
+    .mobile-menu-toggle { display: grid; width: 40px; height: 40px; flex: 0 0 auto; font-size: 18px; }
+    .breadcrumbs { flex: 1; }
+    .top-actions { flex: 0 0 auto; }
+    
+    /* Off-canvas sidebar */
+    .sidebar { position: fixed; z-index: 40; inset: 0 auto 0 0; width: min(300px, 84vw); height: 100dvh; overflow-y: auto; padding: 24px 17px 18px; transform: translateX(-105%); transition: transform .22s ease; box-shadow: 12px 0 35px rgba(20,20,45,.12); }
+    body.mobile-nav-open .sidebar { transform: translateX(0); }
+    .sidebar .brand { width: auto; margin: 0 8px 35px; justify-content: flex-start; }
+    .sidebar .brand > span:last-child { font-size: 23px; }
+    .sidebar .workspace-label, .sidebar .nav-count, .sidebar .help-card, .sidebar .profile > div:not(.avatar), .sidebar .profile-menu { display: block; }
+    .sidebar .nav-item { justify-content: flex-start; padding: 12px; font-size: 14px; }
+    .sidebar .nav-item .nav-icon { font-size: 18px; flex: 0 0 20px; }
+    .sidebar .profile { justify-content: flex-start; }
+    
+    .mobile-menu-backdrop { position: fixed; z-index: 39; inset: 0; background: rgba(24,22,43,.42); }
+    body.mobile-nav-open .mobile-menu-backdrop { display: block; }
+    body.mobile-nav-open { overflow: hidden; }
+    
+    .main-content { width: 100%; padding: 0 clamp(12px, 3vw, 24px) 20px; }
+    .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .task-table-head, .task-row { grid-template-columns: minmax(130px, 1fr) 90px 105px 26px; min-width: 0; }
+    .task-table-head span:nth-child(4), .task-row .status-cell, .today-label { display: none; }
+    
+    .toolbar { flex-wrap: wrap; }
+    .toolbar-filters { width: 100%; min-width: 0; }
+    .select-wrap { min-width: 0; }
+    .select-wrap select { width: 100%; max-width: 130px; }
+    .task-modal { width: min(100%, 490px); max-height: calc(100dvh - 24px); overflow-y: auto; }
+}
+
+@media(max-width: 560px) {
+    .topbar { height: 58px; gap: 8px; }
+    .breadcrumbs { font-size: 11px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .top-actions { gap: 6px; }
+    .small-avatar { display: none; }
+    
+    .page-heading { padding: 20px 0 16px; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .page-heading > div { flex: 1; min-width: 0; }
+    h1 { font-size: clamp(19px, 5.5vw, 23px); letter-spacing: -.7px; }
+    .subtitle { font-size: 11px; max-width: 100%; line-height: 1.5; }
+    .page-heading > .primary-button { min-height: 42px; padding: 10px 9px; font-size: 10px; flex-shrink: 0; }
+    
+    .stats-grid { gap: 7px; margin-bottom: 13px; }
+    .stat-card { padding: 10px; min-width: 0; }
+    .stat-top { font-size: 10px; gap: 4px; }
+    .stat-icon { width: 25px; height: 25px; flex-shrink: 0; }
+    .stat-value { font-size: 22px; margin: 8px 0 4px; }
+    .stat-foot { line-height: 1.4; }
+    
+    .panel-header { padding: 14px 10px 12px; flex-wrap: wrap; gap: 8px; }
+    .panel-header p { font-size: 10px; }
+    .text-button { padding: 7px 2px; font-size: 10px; }
+    
+    .toolbar { padding: 0 10px 12px; display: flex; flex-direction: column; align-items: stretch; gap: 9px; }
+    .search-box { height: 40px; max-width: none; min-width: 0; }
+    .toolbar-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; gap: 7px; }
+    .select-wrap { height: 40px; width: 100%; padding: 0 7px; font-size: 10px; }
+    .select-wrap select { max-width: 100%; font-size: 16px; }
+    
+    .task-table-head { display: none; }
+    .task-row { grid-template-columns: minmax(0, 1fr) 28px; gap: 7px; padding: 13px 10px; min-height: 0; }
+    .task-info { grid-column: 1; grid-row: 1; align-items: flex-start; gap: 10px; }
+    .task-row .priority-cell { grid-column: 1; grid-row: 2; padding-left: 28px; min-width: 0; }
+    .task-row .due-cell { grid-column: 1; grid-row: 3; padding-left: 28px; min-width: 0; }
+    .task-row .status-cell { display: block; grid-column: 1; grid-row: 4; padding-left: 28px; min-width: 0; }
+    .row-actions { grid-column: 2; grid-row: 1; align-self: start; display: flex; justify-content: flex-end; }
+    
+    .more-btn { width: 36px; height: 36px; min-width: 36px; display: grid; place-items: center; }
+    .task-title { font-size: 13px; }
+    .task-description { font-size: 11px; }
+    .due-date { font-size: 11px; white-space: normal; line-height: 1.5; }
+    .priority-pill, .status-pill { font-size: 10px; padding: 6px 8px; min-height: 30px; max-width: 100%; white-space: normal; text-align: left; }
+    
+    .panel-footer { min-height: 46px; height: auto; padding: 10px; font-size: 10px; gap: 6px; flex-wrap: wrap; }
+    .footer-tip { display: none; }
+    
+    .modal-backdrop { padding: 10px; align-items: end; }
+    .task-modal { width: 100%; max-width: none; border-radius: 18px 18px 12px 12px; padding: 18px; max-height: calc(100dvh - 20px); overscroll-behavior: contain; }
+    .modal-heading h2 { font-size: 19px; }
+    .form-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .form-input { font-size: 16px; min-width: 0; }
+    .modal-actions { display: flex; gap: 8px; position: sticky; bottom: -16px; background: var(--surface); padding: 10px 0 2px; }
+    .modal-actions button { min-height: 44px; flex: 1; }
+    
+    .toast { left: 12px; right: 12px; bottom: 12px; text-align: center; }
+}
+
+@media(max-width: 360px) {
+    .main-content { padding-left: 8px; padding-right: 8px; }
+    .stats-grid { grid-template-columns: minmax(0, 1fr); }
+    .stat-card { padding: 11px; }
+    .stat-top { gap: 6px; font-size: 10px; }
+    .stat-icon { width: 27px; height: 27px; }
+    .stat-value { font-size: 21px; }
+    .page-heading h1 { font-size: 21px; }
+    .page-heading > .primary-button { margin-left: auto; font-size: 10px; }
+    .eyebrow { font-size: 7px; letter-spacing: .6px; }
+    .toolbar-filters, .form-row { grid-template-columns: minmax(0, 1fr); }
+    .select-wrap > span { display: none; }
+    .select-wrap select { max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
